@@ -15,18 +15,37 @@ class HomeCubit extends Cubit<HomeState> {
     Article(
       urlToImage: "https://img.jgi.doe.gov/images/home/IMGWebBanner_v4.png",
       title: "there is no news here",
+      source: Source(name: "there is no news here"),
+      publishedAt: DateTime.now().toString(),
+      author: "there is no news here",
+      content: "there is no news here",
     ),
   );
   Future<void> fetchTopHeadlines() async {
     emit(TopHeadlinesLoading(fakeArticles));
     try {
-      final body = TopHeadlinesBodyModel(page: 1, pageSize: 6);
+      final body = TopHeadlinesBodyModel(
+        page: 1,
+        pageSize: 6,
+        category: "business",
+      );
       final response = await _homeServices.fetchTopHeadlines(body);
       final articles = response.articles;
       emit(TopHeadlinesSuccess(articles ?? []));
     } catch (e) {
-      debugPrint(e.toString());
       emit(TopHeadlinesError(e.toString()));
+    }
+  }
+
+  Future<void> fetchRecommendedNews() async {
+    emit(RecommendedNewsLoading(fakeArticles));
+    try {
+      final body = TopHeadlinesBodyModel(page: 1, pageSize: 15);
+      final response = await _homeServices.fetchTopHeadlines(body);
+      final articles = response.articles;
+      emit(RecommendedNewsSuccess(articles ?? []));
+    } catch (e) {
+      emit(RecommendedNewsError(e.toString()));
     }
   }
 }

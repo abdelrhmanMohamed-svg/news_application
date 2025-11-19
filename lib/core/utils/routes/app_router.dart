@@ -13,6 +13,7 @@ class AppRouter {
             create: (context) {
               final homeCubit = HomeCubit();
               homeCubit.fetchTopHeadlines();
+              homeCubit.fetchRecommendedNews();
               return homeCubit;
             },
             child: const HomePage(),
