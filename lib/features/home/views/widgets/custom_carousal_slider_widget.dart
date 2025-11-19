@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:news_application/core/utils/theme/app_colors.dart';
 import 'package:news_application/features/home/models/top_headlines_response.dart';
 
@@ -28,10 +27,10 @@ class _CustomCarousalSliderWidgetState
   @override
   Widget build(BuildContext context) {
     final List<Widget> imageSliders = widget.articles.map((artical) {
-      final parsedDate = DateTime.parse(
-        artical.publishedAt ?? DateTime.now().toString(),
-      );
-      final fromattedDate = DateFormat.H().format(parsedDate);
+      // final parsedDate = DateTime.parse(
+      //   artical.publishedAt ?? DateTime.now().toString(),
+      // );
+     // final fromattedDate = DateFormat.H().format(parsedDate);
 
       return ClipRRect(
         borderRadius: BorderRadius.all(Radius.circular(20.0)),
