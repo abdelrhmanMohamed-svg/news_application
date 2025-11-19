@@ -3,8 +3,11 @@ import 'package:news_application/core/utils/app_constants.dart';
 import 'package:news_application/core/utils/routes/app_router.dart';
 import 'package:news_application/core/utils/routes/app_routes.dart';
 import 'package:news_application/core/utils/theme/app_theme.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+Future<void> main() async {
+
+  await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
 

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:news_application/core/utils/routes/app_routes.dart';
+import 'package:news_application/features/home/home_cubit/home_cubit.dart';
 import 'package:news_application/features/home/views/pages/home_page.dart';
 
 class AppRouter {
@@ -7,7 +9,14 @@ class AppRouter {
     switch (settings.name) {
       case AppRoutes.homeRoute:
         return MaterialPageRoute(
-          builder: (context) => const HomePage(),
+          builder: (context) => BlocProvider(
+            create: (context) {
+              final homeCubit = HomeCubit();
+              homeCubit.fetchTopHeadlines();
+              return homeCubit;
+            },
+            child: const HomePage(),
+          ),
           settings: settings,
         );
 
