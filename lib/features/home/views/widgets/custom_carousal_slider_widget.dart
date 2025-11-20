@@ -1,6 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:news_application/core/utils/app_constants.dart';
+import 'package:news_application/core/utils/helpers.dart';
+import 'package:news_application/core/utils/routes/app_routes.dart';
 import 'package:news_application/core/utils/theme/app_colors.dart';
 import 'package:news_application/features/home/models/top_headlines_response.dart';
 
@@ -26,72 +30,89 @@ class _CustomCarousalSliderWidgetState
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     final List<Widget> imageSliders = widget.articles.map((artical) {
-      // final parsedDate = DateTime.parse(
-      //   artical.publishedAt ?? DateTime.now().toString(),
-      // );
-     // final fromattedDate = DateFormat.H().format(parsedDate);
-
-      return ClipRRect(
-        borderRadius: BorderRadius.all(Radius.circular(20.0)),
-        child: Stack(
-          children: <Widget>[
-            CachedNetworkImage(
-              imageUrl:
-                  artical.urlToImage ??
-                  "https://img.jgi.doe.gov/images/home/IMGWebBanner_v4.png",
-              fit: BoxFit.cover,
-              width: double.infinity,
-            ),
-            Positioned(
-              top: 10.0,
-              left: 10.0,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12.0),
-                  color: AppColors.primary,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: Text(
-                    artical.source!.name ?? "other",
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      color: AppColors.white,
-                      fontWeight: FontWeight.w500,
+      return InkWell(
+        onTap: () => Navigator.of(
+          context,
+        ).pushNamed(AppRoutes.articalDetailsRoute, arguments: artical),
+        child: ClipRRect(
+          borderRadius: BorderRadius.all(Radius.circular(20.0)),
+          child: Stack(
+            children: <Widget>[
+              CachedNetworkImage(
+                imageUrl: artical.urlToImage ?? AppConstants.imgPlaceholder,
+                fit: BoxFit.cover,
+                width: double.infinity,
+              ),
+              Positioned(
+                top: 10.0,
+                left: 10.0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16.0),
+                    color: AppColors.primary,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(7.0),
+                    child: Text(
+                      artical.source!.name ?? "other",
+                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                        color: AppColors.white,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            Positioned(
-              bottom: 0.0,
-              left: 0.0,
-              right: 0.0,
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Color.fromARGB(200, 0, 0, 0),
-                      Color.fromARGB(0, 0, 0, 0),
-                    ],
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
+              Positioned(
+                bottom: 0.0,
+                left: 0.0,
+                right: 0.0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Color.fromARGB(200, 0, 0, 0),
+                        Color.fromARGB(0, 0, 0, 0),
+                      ],
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                    ),
                   ),
-                ),
-                padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-                child: Text(
-                  "${artical.title}",
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                  padding: EdgeInsets.symmetric(
+                    vertical: 10.0,
+                    horizontal: 20.0,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "${artical.author ?? "Unknown"}•${getFormattedDate(artical.publishedAt)}",
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          color: AppColors.white,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      SizedBox(height: size.height * 0.01),
+                      Text(
+                        "${artical.title}",
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
 
-                  style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                    color: AppColors.white,
-                    fontWeight: FontWeight.w500,
+                        style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                          color: AppColors.white,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       );
     }).toList();
