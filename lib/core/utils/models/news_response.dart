@@ -1,11 +1,9 @@
-
-
-class TopHeadlinesResponse {
+class NewsResponse {
   final String status;
   final int totalResults;
   final List<Article>? articles;
 
-  const TopHeadlinesResponse({
+  const NewsResponse({
     required this.status,
     required this.totalResults,
     this.articles,
@@ -19,8 +17,8 @@ class TopHeadlinesResponse {
     };
   }
 
-  factory TopHeadlinesResponse.fromMap(Map<String, dynamic> map) {
-    return TopHeadlinesResponse(
+  factory NewsResponse.fromMap(Map<String, dynamic> map) {
+    return NewsResponse(
       status: map['status'] as String,
       totalResults: map['totalResults'] as int,
       articles: map['articles'] != null
@@ -32,8 +30,7 @@ class TopHeadlinesResponse {
           : null,
     );
   }
-
-  }
+}
 
 class Article {
   final Source? source;
@@ -45,7 +42,7 @@ class Article {
   final String? publishedAt;
   final String? content;
 
- const  Article({
+  const Article({
     this.source,
     this.author,
     this.title,
@@ -89,8 +86,6 @@ class Article {
       content: map['content'] != null ? map['content'] as String : null,
     );
   }
-
-  
 }
 
 class Source {
@@ -109,6 +104,4 @@ class Source {
       name: map['name'] != null ? map['name'] as String : null,
     );
   }
-
- 
 }

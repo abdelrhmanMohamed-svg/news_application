@@ -48,7 +48,7 @@ class _HomePageState extends State<HomePage> {
           ),
           CustomAppBarIcon(
             onTap: () {},
-            iconData: Icons.notifications_none_outlined,
+              iconData: Icons.notifications_none_outlined,
             isPadding: true,
           ),
           SizedBox(width: size.width * 0.02),

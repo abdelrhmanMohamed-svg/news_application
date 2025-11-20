@@ -2,29 +2,32 @@ import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:news_application/core/utils/app_constants.dart';
 import 'package:news_application/core/utils/models/news_response.dart';
-import 'package:news_application/features/home/models/top_headlines_body_model.dart';
+import 'package:news_application/features/search/models/search_body_model.dart';
 
-abstract class HomeServices {
-  Future<NewsResponse> fetchTopHeadlines(TopHeadlinesBodyModel body);
+abstract class SearchServices {
+  Future<NewsResponse> searchNews(SearchBodyModel body);
 }
 
-class HomeServicesImple implements HomeServices {
+class SearchServicesImpl implements SearchServices {
   final aDio = Dio();
   @override
-  Future<NewsResponse> fetchTopHeadlines(TopHeadlinesBodyModel body) async {
+  Future<NewsResponse> searchNews(SearchBodyModel body) async {
     try {
+      aDio.options.baseUrl = AppConstants.baseUrl;
       final options = Options(
         headers: {"Authorization": "Bearer ${dotenv.env['API_KEY']}"},
       );
+
       final response = await aDio.get(
-        "${AppConstants.baseUrl}${AppConstants.topHeadlinesEndPoint}",
+        AppConstants.everyThingEndPoint,
         queryParameters: body.toMap(),
+
         options: options,
       );
       if (response.statusCode == 200) {
         return NewsResponse.fromMap(response.data);
       } else {
-        throw Exception("Something went wrong${response.statusMessage}");
+        throw Exception("Something went wrong");
       }
     } catch (e) {
       rethrow;

@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:news_application/features/home/models/top_headlines_body_model.dart';
-import 'package:news_application/features/home/models/top_headlines_response.dart';
+import 'package:news_application/core/utils/models/news_response.dart';
 import 'package:news_application/features/home/services/home_services.dart';
 
 part 'home_state.dart';
