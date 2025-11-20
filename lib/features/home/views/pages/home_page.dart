@@ -7,8 +7,20 @@ import 'package:news_application/features/home/views/widgets/head_line_title_wid
 import 'package:news_application/features/home/views/widgets/list_recommended_widget.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  late GlobalKey<ScaffoldState> _scaffoldKey;
+  @override
+  void initState() {
+    super.initState();
+    _scaffoldKey = GlobalKey<ScaffoldState>();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,14 +28,26 @@ class HomePage extends StatelessWidget {
     final homeCubit = BlocProvider.of<HomeCubit>(context);
 
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: Drawer(),
       appBar: AppBar(
         scrolledUnderElevation: 0.0,
         elevation: 0.0,
         backgroundColor: Colors.white,
-        leading: CustomAppBarIcon(iconData: Icons.menu),
+        leading: CustomAppBarIcon(
+          onTap: () {
+            _scaffoldKey.currentState?.openDrawer();
+          },
+          iconData: Icons.menu,
+        ),
         actions: [
-          CustomAppBarIcon(iconData: Icons.search, isPadding: true),
           CustomAppBarIcon(
+            onTap: () {},
+            iconData: Icons.search,
+            isPadding: true,
+          ),
+          CustomAppBarIcon(
+            onTap: () {},
             iconData: Icons.notifications_none_outlined,
             isPadding: true,
           ),
