@@ -5,7 +5,8 @@ class CustomAppBarIcon extends StatelessWidget {
   const CustomAppBarIcon({
     super.key,
     required this.iconData,
-    this.isPadding = false, required this.onTap,
+    this.isPadding = false,
+    required this.onTap,
   });
   final IconData iconData;
   final bool isPadding;

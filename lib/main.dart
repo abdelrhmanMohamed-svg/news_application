@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:news_application/core/services/hive_local_database.dart';
 import 'package:news_application/core/utils/app_constants.dart';
 import 'package:news_application/core/utils/routes/app_router.dart';
 import 'package:news_application/core/utils/routes/app_routes.dart';
@@ -6,6 +7,8 @@ import 'package:news_application/core/utils/theme/app_theme.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await HiveLocalDatabase.hiveInit();
 
   await dotenv.load(fileName: ".env");
   runApp(const MyApp());

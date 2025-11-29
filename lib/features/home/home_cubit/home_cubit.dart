@@ -1,14 +1,24 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'package:news_application/core/utils/app_constants.dart';
+import 'package:news_application/core/utils/models/article_model.dart';
+import 'package:news_application/features/favorites/services/favorite_services.dart';
 import 'package:news_application/features/home/models/top_headlines_body_model.dart';
-import 'package:news_application/core/utils/models/news_response.dart';
 import 'package:news_application/features/home/services/home_services.dart';
 
 part 'home_state.dart';
 
 class HomeCubit extends Cubit<HomeState> {
   HomeCubit() : super(HomeInitial());
+  List<Article> articlesList = [];
+  int page = 1;
+  int pageSize = 30;
+  bool hasMore = true;
+  bool isFetching = false;
   final _homeServices = HomeServicesImple();
+  // final pref = SharedPrefrencesLocaldata();
+  final _favoriteServices = FavoriteServices();
   final List<Article> fakeArticles = List.filled(
     5,
     Article(
@@ -36,15 +46,129 @@ class HomeCubit extends Cubit<HomeState> {
     }
   }
 
-  Future<void> fetchRecommendedNews() async {
+  // Future<void> fetchRecommendedNews() async {
+  //   emit(RecommendedNewsLoading(fakeArticles));
+  //   try {
+  //     final body = TopHeadlinesBodyModel(page: 1, pageSize: 15);
+  //     final response = await _homeServices.fetchTopHeadlines(body);
+  //     final articles = response.articles ?? [];
+  //     final favoriteList = await _getFavorite();
+  //     for (int i = 0; i < articles.length; i++) {
+  //       var article = articles[i];
+  //       final isFavorite = favoriteList.any(
+  //         (favoriteItem) => favoriteItem.title == article.title,
+  //       );
+  //       if (isFavorite) {
+  //         article = article.copyWith(isFavorite: true);
+  //         articles[i] = article;
+  //       }
+  //     }
+
+  //     emit(RecommendedNewsSuccess(articles));
+  //   } catch (e) {
+  //     emit(RecommendedNewsError(e.toString()));
+
+  //     debugPrint(e.toString());
+  //   }
+  // }
+  Future<void> fetchRecommendedNewsInitial() async {
+    page = 1;
+    articlesList = [];
+    hasMore = true;
     emit(RecommendedNewsLoading(fakeArticles));
+
+    await _loadPage(isInitial: true);
+  }
+
+  Future<void> fetchRecommendedNewsNext() async {
+    if (isFetching || !hasMore) return;
+
+    page++;
+    emit(RecommendedNewsLoadMore(articlesList));
+
+    await _loadPage(isInitial: false);
+  }
+
+  Future<void> _loadPage({required bool isInitial}) async {
+    isFetching = true;
     try {
-      final body = TopHeadlinesBodyModel(page: 1, pageSize: 15);
+      final body = TopHeadlinesBodyModel(page: page, pageSize: pageSize);
       final response = await _homeServices.fetchTopHeadlines(body);
-      final articles = response.articles;
-      emit(RecommendedNewsSuccess(articles ?? []));
+
+      final newArticles = response.articles ?? [];
+      hasMore = newArticles.length == pageSize;
+      if (isInitial) {
+        articlesList = newArticles;
+      } else {
+        articlesList.addAll(newArticles);
+      }
+
+      final favorites = await _getFavorite();
+      for (int i = 0; i < articlesList.length; i++) {
+        final isFavorite = favorites.any(
+          (fav) => fav.title == articlesList[i].title,
+        );
+        if (isFavorite) {
+          articlesList[i] = articlesList[i].copyWith(isFavorite: true);
+        }
+      }
+
+      emit(RecommendedNewsSuccess(List.from(articlesList), hasMore));
     } catch (e) {
+      if (!isInitial) page--; // لو فشل ارجع خطوة
       emit(RecommendedNewsError(e.toString()));
+    } finally {
+      isFetching = false;
     }
+  }
+
+  Future<void> setFavorite(Article article) async {
+    emit(FavoriteLoading(article.title ?? ""));
+    try {
+      //article -> map -> string
+
+      final favoriteList = await _getFavorite();
+      if (favoriteList.isNotEmpty) {
+        final isFavorite = favoriteList.any(
+          (favoriteArticle) => favoriteArticle.title == article.title,
+        );
+        if (isFavorite) {
+          final index = favoriteList.indexWhere(
+            (item) => item.title == article.title,
+          );
+          favoriteList.remove(favoriteList[index]);
+        } else {
+          favoriteList.add(article);
+        }
+
+        await _favoriteServices.saveFavoriteArticle(
+          AppConstants.favoriteKey,
+          favoriteList,
+        );
+
+        emit(SetFavoriteLoded(!isFavorite, article.title ?? ""));
+      } else {
+        favoriteList.add(article);
+
+        await _favoriteServices.saveFavoriteArticle(
+          AppConstants.favoriteKey,
+          favoriteList,
+        );
+        emit(SetFavoriteLoded(true, article.title ?? ""));
+      }
+    } catch (e) {
+      emit(SetFavoriteError(e.toString(), article.title ?? ""));
+    }
+  }
+
+  Future<dynamic> _getFavorite() async {
+    final favoriteList = await _favoriteServices.getFavoriteArticle(
+      AppConstants.favoriteKey,
+    );
+    if (favoriteList == null) {
+      return [];
+    }
+
+    return favoriteList.map((e) => e as Article).toList();
   }
 }

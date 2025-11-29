@@ -2,9 +2,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:news_application/core/utils/app_constants.dart';
 import 'package:news_application/core/utils/helpers.dart';
+import 'package:news_application/core/utils/models/article_model.dart';
 import 'package:news_application/core/utils/theme/app_colors.dart';
 import 'package:news_application/core/views/widgets/custom_app_bar_icon.dart';
-import 'package:news_application/core/utils/models/news_response.dart';
 
 class ArticalDetailsPage extends StatelessWidget {
   const ArticalDetailsPage({super.key, required this.artical});
@@ -180,7 +180,7 @@ class ArticalDetailsPage extends StatelessWidget {
                           SizedBox(height: size.height * 0.02),
 
                           Text(
-                            "${artical.description ?? ""}\n${artical.content ?? ""}",
+                            artical.description ?? "",
                             textAlign: TextAlign.justify,
                             style: Theme.of(
                               context,

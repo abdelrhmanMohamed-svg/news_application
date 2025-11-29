@@ -1,12 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:news_application/core/utils/app_constants.dart';
 import 'package:news_application/core/utils/helpers.dart';
+import 'package:news_application/core/utils/models/article_model.dart';
 import 'package:news_application/core/utils/routes/app_routes.dart';
 import 'package:news_application/core/utils/theme/app_colors.dart';
-import 'package:news_application/core/utils/models/news_response.dart';
 
 class CustomCarousalSliderWidget extends StatefulWidget {
   const CustomCarousalSliderWidget({super.key, required this.articles});

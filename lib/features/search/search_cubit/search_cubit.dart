@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:news_application/core/utils/models/news_response.dart';
+import 'package:news_application/core/utils/models/article_model.dart';
 import 'package:news_application/features/search/models/search_body_model.dart';
 import 'package:news_application/features/search/services/search_services.dart';
 

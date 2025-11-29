@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:news_application/core/utils/routes/app_routes.dart';
+import 'package:news_application/core/views/widgets/app_drawer.dart';
 import 'package:news_application/core/views/widgets/custom_app_bar_icon.dart';
 import 'package:news_application/features/home/home_cubit/home_cubit.dart';
 import 'package:news_application/features/home/views/widgets/custom_carousal_slider_widget.dart';
@@ -16,6 +18,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late GlobalKey<ScaffoldState> _scaffoldKey;
+
   @override
   void initState() {
     super.initState();
@@ -29,7 +32,15 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       key: _scaffoldKey,
-      drawer: Drawer(),
+      drawer: AppDrawer(),
+      onDrawerChanged: (isOpened) async {
+        if (!isOpened) {
+          await Future.wait([
+            homeCubit.fetchRecommendedNewsInitial(),
+            homeCubit.fetchTopHeadlines(),
+          ]);
+        }
+      },
       appBar: AppBar(
         scrolledUnderElevation: 0.0,
         elevation: 0.0,
@@ -42,89 +53,90 @@ class _HomePageState extends State<HomePage> {
         ),
         actions: [
           CustomAppBarIcon(
-            onTap: () {},
+            onTap: () => Navigator.of(context).pushNamed(AppRoutes.searchRoute),
             iconData: Icons.search,
             isPadding: true,
           ),
           CustomAppBarIcon(
             onTap: () {},
-              iconData: Icons.notifications_none_outlined,
+            iconData: Icons.notifications_none_outlined,
             isPadding: true,
           ),
           SizedBox(width: size.width * 0.02),
         ],
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0),
-            child: Column(
-              children: [
-                BlocBuilder<HomeCubit, HomeState>(
-                  bloc: homeCubit,
-                  buildWhen: (previous, current) =>
-                      current is TopHeadlinesLoading ||
-                      current is TopHeadlinesSuccess ||
-                      current is TopHeadlinesError,
-                  builder: (context, state) {
-                    if (state is TopHeadlinesLoading) {
-                      final fakeArticles = state.fakeArticles;
-                      return Skeletonizer(
-                        enabled: true,
-                        child: Column(
-                          children: [
-                            HeadLineTitleWidget(
-                              title: "Breaking News",
-                              onTap: () {},
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          child: Column(
+            children: [
+              BlocBuilder<HomeCubit, HomeState>(
+                bloc: homeCubit,
+                buildWhen: (previous, current) =>
+                    current is TopHeadlinesLoading ||
+                    current is TopHeadlinesSuccess ||
+                    current is TopHeadlinesError,
+                builder: (context, state) {
+                  if (state is TopHeadlinesLoading) {
+                    final fakeArticles = state.fakeArticles;
+                    return Skeletonizer(
+                      enabled: true,
+                      child: Column(
+                        children: [
+                          HeadLineTitleWidget(
+                            title: "Breaking News",
+                            onTap: () {},
+                          ),
+                          SizedBox(height: size.height * 0.02),
+                          SizedBox(
+                            height: size.height * 0.3,
+                            width: size.width,
+                            child: CustomCarousalSliderWidget(
+                              articles: fakeArticles,
                             ),
-                            SizedBox(height: size.height * 0.02),
-                            SizedBox(
-                              height: size.height * 0.3,
-                              width: size.width,
-                              child: CustomCarousalSliderWidget(
-                                articles: fakeArticles,
-                              ),
+                          ),
+                        ],
+                      ),
+                    );
+                  } else if (state is TopHeadlinesError) {
+                    return Center(child: Text(state.message));
+                  } else if (state is TopHeadlinesSuccess) {
+                    final articles = state.articles;
+                    return Skeletonizer(
+                      enabled: false,
+                      child: Column(
+                        children: [
+                          HeadLineTitleWidget(
+                            title: "Breaking News",
+                            onTap: () {},
+                          ),
+                          SizedBox(height: size.height * 0.02),
+                          SizedBox(
+                            height: size.height * 0.3,
+                            width: size.width,
+                            child: CustomCarousalSliderWidget(
+                              articles: articles,
                             ),
-                          ],
-                        ),
-                      );
-                    } else if (state is TopHeadlinesError) {
-                      return Center(child: Text(state.message));
-                    } else if (state is TopHeadlinesSuccess) {
-                      final articles = state.articles;
-                      return Skeletonizer(
-                        enabled: false,
-                        child: Column(
-                          children: [
-                            HeadLineTitleWidget(
-                              title: "Breaking News",
-                              onTap: () {},
-                            ),
-                            SizedBox(height: size.height * 0.02),
-                            SizedBox(
-                              height: size.height * 0.3,
-                              width: size.width,
-                              child: CustomCarousalSliderWidget(
-                                articles: articles,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  },
-                ),
+                          ),
+                        ],
+                      ),
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
+              ),
 
-                SizedBox(height: size.height * 0.02),
+              SizedBox(height: size.height * 0.02),
 
-                BlocBuilder<HomeCubit, HomeState>(
+              Expanded(
+                child: BlocBuilder<HomeCubit, HomeState>(
                   bloc: homeCubit,
                   buildWhen: (previous, current) =>
                       current is RecommendedNewsLoading ||
                       current is RecommendedNewsSuccess ||
-                      current is RecommendedNewsError,
+                      current is RecommendedNewsError ||
+                      current is RecommendedNewsLoadMore,
                   builder: (context, state) {
                     if (state is RecommendedNewsLoading) {
                       final fakeArticles = state.fakeArticles;
@@ -134,28 +146,49 @@ class _HomePageState extends State<HomePage> {
                         child: Column(
                           children: [
                             HeadLineTitleWidget(
-                              title: "Recommendaion",
+                              title: "Recommendation",
                               onTap: () {},
                             ),
                             SizedBox(height: size.height * 0.02),
-                            ListRecommendedWidget(articles: fakeArticles),
+                            Expanded(
+                              child: ListRecommendedWidget(articles: fakeArticles),
+                            ),
                           ],
                         ),
                       );
                     } else if (state is RecommendedNewsError) {
                       return Center(child: Text(state.message));
-                    } else if (state is RecommendedNewsSuccess) {
-                      final articles = state.articles;
+                    } else if (state is RecommendedNewsLoadMore) {
+                      final articles = homeCubit.articlesList;
                       return Skeletonizer(
                         enabled: false,
                         child: Column(
                           children: [
                             HeadLineTitleWidget(
-                              title: "Recommendaion",
+                              title: "Recommendation",
                               onTap: () {},
                             ),
                             SizedBox(height: size.height * 0.02),
-                            ListRecommendedWidget(articles: articles),
+                            Expanded(
+                              child: ListRecommendedWidget(articles: articles),
+                            ),
+                          ],
+                        ),
+                      );
+                    } else if (state is RecommendedNewsSuccess) {
+                      final articles = homeCubit.articlesList;
+                      return Skeletonizer(
+                        enabled: false,
+                        child: Column(
+                          children: [
+                            HeadLineTitleWidget(
+                              title: "Recommendation",
+                              onTap: () {},
+                            ),
+                            SizedBox(height: size.height * 0.02),
+                            Expanded(
+                              child: ListRecommendedWidget(articles: articles),
+                            ),
                           ],
                         ),
                       );
@@ -164,8 +197,8 @@ class _HomePageState extends State<HomePage> {
                     }
                   },
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

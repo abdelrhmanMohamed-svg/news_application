@@ -8,8 +8,8 @@ class SearchBodyModel {
   SearchBodyModel({
     required this.q,
     this.searchIn = "title",
-    this.page = 1,
-    this.pageSize = 15,
+    this.page = 4,
+    this.pageSize = 10,
     this.sortBy = "publishedAt",
   });
 
