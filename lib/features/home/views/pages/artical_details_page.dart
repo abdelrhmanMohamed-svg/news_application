@@ -1,5 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:news_application/core/cubits/favorite_action/favorite_action_cubit.dart';
 import 'package:news_application/core/utils/app_constants.dart';
 import 'package:news_application/core/utils/helpers.dart';
 import 'package:news_application/core/utils/models/article_model.dart';
@@ -13,15 +15,20 @@ class ArticalDetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
+    final favoriteCubit = BlocProvider.of<FavoriteActionCubit>(context);
     return Scaffold(
       extendBodyBehindAppBar: true,
       body: Stack(
         children: [
-          CachedNetworkImage(
-            imageUrl: artical.urlToImage ?? AppConstants.imgPlaceholder,
-            fit: BoxFit.cover,
-            width: size.width,
-            height: size.height * 0.5,
+          Hero(
+            tag: artical.title ?? "carousal",
+
+            child: CachedNetworkImage(
+              imageUrl: artical.urlToImage ?? AppConstants.imgPlaceholder,
+              fit: BoxFit.cover,
+              width: size.width,
+              height: size.height * 0.5,
+            ),
           ),
           Container(
             width: size.width,
@@ -58,10 +65,42 @@ class ArticalDetailsPage extends StatelessWidget {
                   ),
                   Row(
                     children: [
-                      CustomAppBarIcon(
-                        onTap: () {},
-                        iconData: Icons.favorite_border_outlined,
-                        isPadding: true,
+                      BlocBuilder<FavoriteActionCubit, FavoriteActionState>(
+                        bloc: favoriteCubit,
+                        buildWhen: (previous, current) =>
+                            (current is SetFavoriteLoded &&
+                                current.title == artical.title) ||
+                            (current is DoingFavoriteError &&
+                                current.title == artical.title) ||
+                            (current is DoingFavorite &&
+                                current.title == artical.title),
+                        builder: (context, state) {
+                          if (state is DoingFavorite) {
+                            return Center(
+                              child: Transform.scale(
+                                scale: 1.5,
+                                child: CircularProgressIndicator.adaptive(),
+                              ),
+                            );
+                          } else if (state is SetFavoriteLoded) {
+                            final isFavorite = state.isFavorite;
+                            return CustomAppBarIcon(
+                              onTap: () => favoriteCubit.setFavorite(artical),
+                              iconData: isFavorite
+                                  ? Icons.favorite
+                                  : Icons.favorite_border_outlined,
+                              isPadding: true,
+                            );
+                          }
+
+                          return CustomAppBarIcon(
+                            onTap: () => favoriteCubit.setFavorite(artical),
+                            iconData: artical.isFavorite
+                                ? Icons.favorite
+                                : Icons.favorite_border_outlined,
+                            isPadding: true,
+                          );
+                        },
                       ),
                       CustomAppBarIcon(
                         onTap: () {},
@@ -154,7 +193,7 @@ class ArticalDetailsPage extends StatelessWidget {
 
                               Text(
                                 artical.source!.name ?? "",
-                                style: Theme.of(context).textTheme.titleLarge!
+                                style: Theme.of(context).textTheme.titleMedium!
                                     .copyWith(
                                       color: AppColors.black,
                                       fontWeight: FontWeight.w500,

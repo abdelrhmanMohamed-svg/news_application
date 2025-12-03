@@ -9,10 +9,16 @@ import 'package:news_application/features/home/views/pages/artical_details_page.
 import 'package:news_application/features/home/views/pages/home_page.dart';
 import 'package:news_application/features/search/search_cubit/search_cubit.dart';
 import 'package:news_application/features/search/views/pages/search_page.dart';
+import 'package:news_application/splash_screen.dart';
 
 class AppRouter {
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
+      case AppRoutes.splashRoute:
+        return MaterialPageRoute(
+          builder: (context) => const SplashScreen(),
+          settings: settings,
+        );
       case AppRoutes.favoriteRoute:
         return MaterialPageRoute(
           builder: (context) => BlocProvider(

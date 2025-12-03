@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:news_application/core/cubits/favorite_action/favorite_action_cubit.dart';
 import 'package:news_application/core/services/hive_local_database.dart';
 import 'package:news_application/core/utils/app_constants.dart';
 import 'package:news_application/core/utils/routes/app_router.dart';
@@ -19,12 +21,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: AppConstants.appName,
-      theme: AppTheme.lightTheme(),
-      debugShowCheckedModeBanner: false,
-      onGenerateRoute: AppRouter.onGenerateRoute,
-      initialRoute: AppRoutes.homeRoute,
+    return BlocProvider(
+      create: (context) => FavoriteActionCubit(),
+      child: MaterialApp(
+        title: AppConstants.appName,
+        theme: AppTheme.lightTheme(),
+        debugShowCheckedModeBanner: false,
+        onGenerateRoute: AppRouter.onGenerateRoute,
+        initialRoute: AppRoutes.splashRoute,
+      ),
     );
   }
 }

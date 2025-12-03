@@ -7,13 +7,13 @@ part 'search_state.dart';
 
 class SearchCubit extends Cubit<SearchState> {
   SearchCubit() : super(SearchInitial());
-  final List<Article> fakeArticles = List.filled(
+  final List<Article> fakeArticles = List.generate(
     5,
-    Article(
+    (index) => Article(
       urlToImage: "https://img.jgi.doe.gov/images/home/IMGWebBanner_v4.png",
       title: "there is no news here",
       source: Source(name: "there is no news here"),
-      publishedAt: DateTime.now().toString(),
+      publishedAt: DateTime.now().add(Duration(seconds: index)).toString(),
       author: "there is no news here",
       content: "there is no news here",
     ),

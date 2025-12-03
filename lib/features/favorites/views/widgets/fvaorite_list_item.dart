@@ -11,45 +11,78 @@ class FvaoriteListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.sizeOf(context);
+    final size = MediaQuery.of(context).size;
     final favoriteCubit = BlocProvider.of<FavoriteCubit>(context);
-    return ListTile(
+
+    return InkWell(
       onTap: () => Navigator.of(
         context,
       ).pushNamed(AppRoutes.articalDetailsRoute, arguments: article),
-      leading: CachedNetworkImage(
-        height: size.height * 0.6,
-        width: size.width * 0.3,
-        fit: BoxFit.cover,
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15.0),
+        ),
+        child: Row(
+          children: [
+            Hero(
+              tag: article.url ?? (article.title! + article.publishedAt!),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(15.0),
+                child: CachedNetworkImage(
+                  height: size.height * 0.15,
+                  width: size.width * 0.4,
+                  fit: BoxFit.cover,
+                  imageUrl: article.urlToImage ?? "",
+                  placeholder: (context, url) =>
+                      Center(child: CircularProgressIndicator.adaptive()),
+                  errorWidget: (context, url, error) => Icon(Icons.error),
+                ),
+              ),
+            ),
+            SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    article.title ?? "",
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    article.source?.name ?? "",
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ),
+            BlocBuilder<FavoriteCubit, FavoriteState>(
+              bloc: favoriteCubit,
+              buildWhen: (previous, current) =>
+                  (current is FavoriteDeleted &&
+                      current.title == article.title) ||
+                  (current is FavoriteDeleting &&
+                      current.title == article.title),
+              builder: (context, state) {
+                if (state is FavoriteDeleting) {
+                  return Transform.scale(
+                    scale: 0.5,
+                    child: CircularProgressIndicator.adaptive(),
+                  );
+                }
 
-        imageUrl: article.urlToImage ?? "",
-      ),
-      title: Text(
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-
-        article.title ?? "",
-      ),
-
-      trailing: BlocBuilder<FavoriteCubit, FavoriteState>(
-        bloc: favoriteCubit,
-        buildWhen: (previous, current) =>
-            (current is FavoriteDeleted && current.title == article.title) ||
-            (current is FavoriteDeleting && current.title == article.title) ||
-            (current is FavoriteDeleted && current.title == article.title),
-        builder: (context, state) {
-          if (state is FavoriteDeleting) {
-            return Transform.scale(
-              scale: 0.5,
-              child: CircularProgressIndicator.adaptive(),
-            );
-          }
-
-          return InkWell(
-            onTap: () async => await favoriteCubit.deleteFavorite(article),
-            child: Icon(Icons.favorite),
-          );
-        },
+                return IconButton(
+                  onPressed: () async =>
+                      await favoriteCubit.deleteFavorite(article),
+                  icon: Icon(Icons.favorite, color: Colors.black),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

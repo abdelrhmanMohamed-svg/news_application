@@ -39,10 +39,13 @@ class _CustomCarousalSliderWidgetState
           borderRadius: BorderRadius.all(Radius.circular(20.0)),
           child: Stack(
             children: <Widget>[
-              CachedNetworkImage(
-                imageUrl: artical.urlToImage ?? AppConstants.imgPlaceholder,
-                fit: BoxFit.cover,
-                width: double.infinity,
+              Hero(
+                tag: artical.url ?? (artical.title! + artical.publishedAt!),
+                child: CachedNetworkImage(
+                  imageUrl: artical.urlToImage ?? AppConstants.imgPlaceholder,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                ),
               ),
               Positioned(
                 top: 10.0,

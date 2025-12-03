@@ -13,7 +13,7 @@ class Favoritelistbuilder extends StatelessWidget {
         final article = articles[index];
         return FvaoriteListItem(article: article);
       },
-      separatorBuilder: (context, index) => Divider(),
+      separatorBuilder: (context, index) => const SizedBox(height: 13),
       itemCount: articles.length,
     );
   }

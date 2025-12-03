@@ -38,23 +38,7 @@ final class RecommendedNewsError extends HomeState {
   const RecommendedNewsError(this.message);
 }
 
-final class FavoriteLoading extends HomeState {
-  final String title;
-  const FavoriteLoading(this.title);
-}
 
-final class SetFavoriteLoded extends HomeState {
-  final bool isFavorite;
-  final String title;
-
-  const SetFavoriteLoded(this.isFavorite, this.title);
-}
-
-final class SetFavoriteError extends HomeState {
-  final String title;
-  final String message;
-  const SetFavoriteError(this.message, this.title);
-}
 
 final class RecommendedNewsLoadMore extends HomeState {
   final List<Article> articles;

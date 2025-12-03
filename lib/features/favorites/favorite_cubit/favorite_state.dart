@@ -35,3 +35,21 @@ final class FavoriteDeleted extends FavoriteState {
   const FavoriteDeleted(this.title);
 }
 
+final class FavoriteArticleLoading extends FavoriteState {
+  final String title;
+  const FavoriteArticleLoading(this.title);
+}
+
+final class SetFavoriteLoded extends FavoriteState {
+  final bool isFavorite;
+  final String title;
+
+  const SetFavoriteLoded(this.isFavorite, this.title);
+}
+
+final class SetFavoriteError extends FavoriteState {
+  final String title;
+  final String message;
+  const SetFavoriteError(this.message, this.title);
+}
+
